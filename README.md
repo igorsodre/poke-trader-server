@@ -1,4 +1,4 @@
-# Templete for new node express app with authentication built in
+# Template for new node express app with authentication built in
 
 ## Quick postgress database setup
 

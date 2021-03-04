@@ -1,3 +1,4 @@
+type Nullable<T> = T | null | undefined;
 type IAccessTokenFormat = {
     userId: string;
     email?: string;
