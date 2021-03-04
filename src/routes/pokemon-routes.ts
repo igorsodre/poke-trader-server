@@ -26,7 +26,7 @@ router.post(
 router.post(
     '/remove_pokemon_from_pokedex',
     isUserAuthenticated,
-    [check('pokemonId').isNumeric()],
+    [check('userPokemonId').isNumeric()],
     enforceValidInputs,
     removePokemonFromUserPokedex,
 );

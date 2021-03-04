@@ -1,5 +1,5 @@
-import { BaseEntity, Column, Entity, ManyToMany, PrimaryGeneratedColumn } from 'typeorm';
-import { User } from './User';
+import { BaseEntity, Column, Entity, OneToMany, PrimaryGeneratedColumn } from 'typeorm';
+import { UserPokemons } from './UsersPokemons';
 
 @Entity('pokemons')
 export class Pokemon extends BaseEntity {
@@ -24,6 +24,6 @@ export class Pokemon extends BaseEntity {
     @Column()
     species: string;
 
-    @ManyToMany(() => User, (user) => user.pokemons)
-    users: User[];
+    @OneToMany(() => UserPokemons, (userPokemon) => userPokemon.pokemon)
+    userPokemons: UserPokemons[];
 }

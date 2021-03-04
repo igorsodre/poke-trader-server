@@ -1,6 +1,6 @@
-import { Pokemon } from './Pokemon';
-import { Entity, PrimaryGeneratedColumn, Column, BaseEntity, ManyToOne, ManyToMany, JoinTable } from 'typeorm';
+import { BaseEntity, Column, Entity, OneToMany, PrimaryGeneratedColumn } from 'typeorm';
 import { Trade } from './Trade';
+import { UserPokemons } from './UsersPokemons';
 
 @Entity('users')
 export class User extends BaseEntity {
@@ -19,14 +19,13 @@ export class User extends BaseEntity {
     @Column('int', { default: 0 })
     tokenVersion: number;
 
-    @ManyToMany(() => Pokemon, (pokemon) => pokemon.users)
-    @JoinTable()
-    pokemons: Pokemon[];
+    @OneToMany(() => UserPokemons, (userPokemon) => userPokemon.user)
+    userPokemons: UserPokemons[];
 
-    @ManyToOne(() => Trade, (trade) => trade.requester)
+    @OneToMany(() => Trade, (trade) => trade.requester)
     requestedTrades: Trade[];
 
-    @ManyToOne(() => Trade, (trade) => trade.requested)
+    @OneToMany(() => Trade, (trade) => trade.requested)
     tradesSentToMe: Trade[];
 
     getDisplayableValues = (): Partial<User> => {

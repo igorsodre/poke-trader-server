@@ -1,3 +1,4 @@
+import { UserPokemons } from './../entity/UsersPokemons';
 import { RequestHandler } from 'express';
 import { StatusCodes } from 'http-status-codes';
 import { Pokemon } from '../entity/Pokemon';
@@ -21,18 +22,16 @@ export const fetchPokemonsByPage: RequestHandler = async (req, res, next) => {
 
 export const fetchUsersPokemons: RequestHandler = async (req, res, next) => {
     const { userId } = req.appData as IAccessTokenFormat;
-    let user: Nullable<User>;
+    let user: User;
     try {
-        // const userRepository = await getConnection().getRepository(User);
-        // const pokemons = await userRepository.find({ relations: ['pokemons'], where: { id: userId } });
-        user = await User.findOne(userId, { relations: ['pokemons'] });
+        user = (await User.findOne(userId, { relations: ['users_pokemons'] })) as User;
     } catch (err) {
         return next(new ServerErrorResponse('Error retrieving pokemon/user', StatusCodes.INTERNAL_SERVER_ERROR, err));
     }
-    if (!user) {
+    if (!user?.userPokemons) {
         return next(new ServerErrorResponse('Could not find pokemon/user', StatusCodes.NOT_FOUND));
     }
-    res.json({ data: user.pokemons });
+    res.json({ data: user.userPokemons });
 };
 
 export const addPokemonToUserPokedex: RequestHandler = async (req, res, next) => {
@@ -42,43 +41,39 @@ export const addPokemonToUserPokedex: RequestHandler = async (req, res, next) =>
     let user: Nullable<User>;
     try {
         pokemon = await Pokemon.findOne(pokemonId);
-        user = await User.findOne(userId, { relations: ['pokemons'] });
+        user = await User.findOne(userId);
     } catch (err) {
         return next(new ServerErrorResponse('Error retrieving pokemon/user', StatusCodes.INTERNAL_SERVER_ERROR, err));
     }
     if (!pokemon || !user) {
         return next(new ServerErrorResponse('Could not find pokemon/user', StatusCodes.NOT_FOUND));
     }
-    if (user.pokemons.some((p) => p.id === pokemonId)) {
-        return next(new ServerErrorResponse('Cannot Add Same pokemon twice', StatusCodes.INTERNAL_SERVER_ERROR));
-    }
+    const userPokemon: UserPokemons = new UserPokemons();
     try {
-        user.pokemons.push(pokemon);
-        user.save();
+        userPokemon.user = user;
+        userPokemon.pokemon = pokemon;
+        await userPokemon.save();
     } catch (err) {
         return next(new ServerErrorResponse('Filed to add pokemon to pokedex', StatusCodes.INTERNAL_SERVER_ERROR));
     }
 
-    res.json({ data: pokemon });
+    res.json({ data: userPokemon });
 };
 
 export const removePokemonFromUserPokedex: RequestHandler = async (req, res, next) => {
-    const { pokemonId } = req.body;
-    const { userId } = req.appData as IAccessTokenFormat;
-    let pokemon: Pokemon;
-    let user: User;
+    const { userPokemonId } = req.body;
+
+    let userPokemon: UserPokemons;
     try {
-        pokemon = (await Pokemon.findOne(pokemonId)) as Pokemon;
-        user = (await User.findOne(userId, { relations: ['pokemons'] })) as User;
+        userPokemon = (await UserPokemons.findOne(userPokemonId)) as UserPokemons;
     } catch (err) {
         return next(new ServerErrorResponse('Error retrieving pokemon/user', StatusCodes.INTERNAL_SERVER_ERROR, err));
     }
-    if (!pokemon || !user) {
+    if (!userPokemon) {
         return next(new ServerErrorResponse('Could not find pokemon/user', StatusCodes.NOT_FOUND));
     }
     try {
-        user.pokemons = user.pokemons.filter((p) => p.id !== pokemon.id);
-        user.save();
+        await userPokemon.remove();
     } catch (err) {
         return next(new ServerErrorResponse('Filed to remove pokemon from pokedex', StatusCodes.INTERNAL_SERVER_ERROR));
     }
