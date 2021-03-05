@@ -3,13 +3,23 @@ import { Router } from 'express';
 import { check } from 'express-validator';
 import { isUserAuthenticated } from '../util/auth-util';
 import { enforceValidInputs } from '../util/input-validation-util';
-import { getLoggedUserDetails, login, logout, refreshToken, register, update } from './../controllers/user-controller';
+import {
+    fetchAllUsers,
+    getLoggedUserDetails,
+    login,
+    logout,
+    refreshToken,
+    register,
+    update,
+} from './../controllers/user-controller';
 
 const router = Router();
 
 router.post('/refresh_token', cookieParser(), refreshToken);
 
-router.get('/', isUserAuthenticated, getLoggedUserDetails);
+router.get('/', isUserAuthenticated, fetchAllUsers);
+
+router.get('/detail', isUserAuthenticated, getLoggedUserDetails);
 
 router.post(
     '/register',

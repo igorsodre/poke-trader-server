@@ -1,8 +1,9 @@
-import { UserPokemons } from './../entity/UsersPokemons';
 import { RequestHandler } from 'express';
 import { StatusCodes } from 'http-status-codes';
 import { Pokemon } from '../entity/Pokemon';
 import { User } from '../entity/User';
+import { Trade, TradeStaus } from './../entity/Trade';
+import { UserPokemons } from './../entity/UsersPokemons';
 import { ServerErrorResponse } from './../util/default-error-response';
 
 const PAGE_COUNT = 10;
@@ -10,21 +11,39 @@ export const fetchPokemonsByPage: RequestHandler = async (req, res, next) => {
     let page = Number(req.params.page);
     if (!page || isNaN(page)) page = 0;
     let result: Pokemon[];
+    let count = 0;
     try {
         result = await Pokemon.find({ order: { name: 'ASC' }, skip: PAGE_COUNT * page, take: PAGE_COUNT });
+        count = await Pokemon.count();
     } catch (err) {
         return next(
             new ServerErrorResponse('Failed to get pokemons for given page', StatusCodes.INTERNAL_SERVER_ERROR, err),
         );
     }
-    res.json({ data: result });
+    res.json({ data: result, totalCount: count });
 };
 
-export const fetchUsersPokemons: RequestHandler = async (req, res, next) => {
+// TODO: think of a way to refactor this next 2 routes. The error handling makes it kind of hard
+export const fetchPokemonsForGivenUser: RequestHandler = async (req, res, next) => {
+    const { userId } = req.params as IAccessTokenFormat;
+    let user: User;
+
+    try {
+        user = (await User.findOne(userId, { relations: ['userPokemons'] })) as User;
+    } catch (err) {
+        return next(new ServerErrorResponse('Error retrieving pokemon/user', StatusCodes.INTERNAL_SERVER_ERROR, err));
+    }
+    if (!user?.userPokemons) {
+        return next(new ServerErrorResponse('Could not find pokemon/user', StatusCodes.NOT_FOUND));
+    }
+    return res.json({ data: user.userPokemons });
+};
+
+export const fetchLoggedUserPokemons: RequestHandler = async (req, res, next) => {
     const { userId } = req.appData as IAccessTokenFormat;
     let user: User;
     try {
-        user = (await User.findOne(userId, { relations: ['users_pokemons'] })) as User;
+        user = (await User.findOne(userId, { relations: ['userPokemons'] })) as User;
     } catch (err) {
         return next(new ServerErrorResponse('Error retrieving pokemon/user', StatusCodes.INTERNAL_SERVER_ERROR, err));
     }
@@ -79,4 +98,42 @@ export const removePokemonFromUserPokedex: RequestHandler = async (req, res, nex
     }
 
     res.json({ data: 'OK' });
+};
+
+interface BuildRequestedTradeBody {
+    requestedUserId: number;
+    requestedPokemons: number[];
+    givenPokemons: number[];
+}
+export const buildRequestedTrade: RequestHandler = async (req, res, next) => {
+    const { userId } = req.appData as IAccessTokenFormat;
+    const { requestedUserId, requestedPokemons, givenPokemons } = req.body as BuildRequestedTradeBody;
+
+    // validade if both users exist
+    let user: User;
+    let requestedUser: User;
+    try {
+        user = (await User.findOne(userId)) as User;
+        requestedUser = (await User.findOne(requestedUserId)) as User;
+    } catch (err) {
+        return next(new ServerErrorResponse('Failed to retrieve users', StatusCodes.INTERNAL_SERVER_ERROR, err));
+    }
+    if (!user || !requestedUser) {
+        return next(new ServerErrorResponse('Could not find users', StatusCodes.NOT_FOUND));
+    }
+
+    // TODO: validade if all pokemons requested and provided exist
+    try {
+        const trade = new Trade();
+        trade.requester = user;
+        trade.requested = requestedUser;
+        trade.pokemonsSentToRequestedUser = givenPokemons;
+        trade.requestedPokemons = requestedPokemons;
+        trade.status = TradeStaus.Active;
+        await trade.save();
+    } catch (err) {
+        return next(new ServerErrorResponse('Failed to create trade request', StatusCodes.NOT_FOUND));
+    }
+
+    res.json({ data: 'ok' });
 };

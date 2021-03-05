@@ -33,8 +33,10 @@ export const refreshToken: RequestHandler = async (req, res) => {
     return res.json({ data: { ok: true, accessToken: createAccessToken(user), user: user.getDisplayableValues() } });
 };
 
-export const fetchAllUsers: RequestHandler = async (_req, res) => {
-    res.json({ data: await User.find({ select: ['id', 'name', 'email'] }) });
+export const fetchAllUsers: RequestHandler = async (req, res) => {
+    const { userId } = req.appData as IAccessTokenFormat;
+    const result = await User.find({ select: ['id', 'name', 'email'] });
+    res.json({ data: result.filter((u) => u.id !== Number(userId)) });
 };
 
 export const getLoggedUserDetails: RequestHandler = async (req, res, next) => {

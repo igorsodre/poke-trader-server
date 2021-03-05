@@ -13,15 +13,15 @@ export class Trade extends BaseEntity {
     @Column('int')
     status: TradeStaus;
 
-    @ManyToOne(() => User, (user) => user.requestedTrades)
+    @ManyToOne(() => User, (user) => user.requestedTrades, { eager: true })
     requester: User;
 
-    @ManyToOne(() => User, (user) => user.tradesSentToMe)
+    @ManyToOne(() => User, (user) => user.tradesSentToMe, { eager: true })
     requested: User;
 
     @Column('int', { array: true })
     requestedPokemons: number[];
 
     @Column('int', { array: true })
-    pokemonsSentToMe: number[];
+    pokemonsSentToRequestedUser: number[];
 }
