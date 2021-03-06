@@ -1,13 +1,34 @@
-import { User } from '../entity/User';
+import { In } from 'typeorm';
 import { UserPokemons } from '../entity/UsersPokemons';
+import { Trade } from './../entity/Trade';
 
-export const getAllPokemonsInTradesForGivenUserId = async (userId: number): Promise<UserPokemons[]> => {
-    const user = await User.findOne(userId, { relations: ['trades'] });
-    let pokemonIds: number[] = [];
+export interface PokemonsFromTrade {
+    requested: UserPokemons[];
+    sent: UserPokemons[];
+    status: number;
+    tradeId: number;
+    userNameSentTo: string;
+    userNameSentBy: string;
+}
+export const getPokemonsFromTrade = async (trade: Trade): Promise<PokemonsFromTrade> => {
+    let requested: UserPokemons[];
+    let sent: UserPokemons[];
+    try {
+        requested = (await UserPokemons.find({ where: { id: In(trade.requestedPokemons) } })) as UserPokemons[];
+        sent = (await UserPokemons.find({
+            where: { id: In(trade.pokemonsSentToRequestedUser) },
+        })) as UserPokemons[];
+    } catch (err) {
+        requested = [];
+        sent = [];
+    }
 
-    user?.requestedTrades.forEach((t) => {
-        pokemonIds = pokemonIds.concat(t.pokemonsSentToRequestedUser);
-    });
-
-    return await UserPokemons.findByIds(pokemonIds);
+    return {
+        requested,
+        sent,
+        status: trade.status,
+        tradeId: trade.id,
+        userNameSentTo: trade.requested.name,
+        userNameSentBy: trade.requester.name,
+    };
 };

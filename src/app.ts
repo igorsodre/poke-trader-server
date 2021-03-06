@@ -1,4 +1,3 @@
-import bodyParser from 'body-parser';
 import cors from 'cors';
 import express, { Application } from 'express';
 import { routes } from './routes';
@@ -13,7 +12,7 @@ export const getApp = (): Application => {
 
     app.use(cors({ credentials: true, origin: process.env.WEB_ORIGIN }));
 
-    app.use(bodyParser.json());
+    app.use(express.json());
 
     app.use(allowOrigin);
 

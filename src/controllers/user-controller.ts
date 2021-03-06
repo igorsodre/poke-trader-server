@@ -2,6 +2,7 @@ import { compare, hash } from 'bcryptjs';
 import { RequestHandler } from 'express';
 import { StatusCodes } from 'http-status-codes';
 import { verify } from 'jsonwebtoken';
+import { Not } from 'typeorm';
 import { User } from '../entity/User';
 import { IRefreshToken } from '../typings/token';
 import { createAccessToken, createRefreshToken, setRefreshTokenOnCookie } from '../util/auth-util';
@@ -35,8 +36,8 @@ export const refreshToken: RequestHandler = async (req, res) => {
 
 export const fetchAllUsers: RequestHandler = async (req, res) => {
     const { userId } = req.appData as IAccessTokenFormat;
-    const result = await User.find({ select: ['id', 'name', 'email'] });
-    res.json({ data: result.filter((u) => u.id !== Number(userId)) });
+    const result = await User.find({ where: { id: Not(userId) } });
+    res.json({ data: result.map((u) => u.getDisplayableValues()) });
 };
 
 export const getLoggedUserDetails: RequestHandler = async (req, res, next) => {

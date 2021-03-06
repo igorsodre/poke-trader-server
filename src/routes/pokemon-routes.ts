@@ -1,12 +1,11 @@
-import { check } from 'express-validator';
 import { Router } from 'express';
+import { check } from 'express-validator';
 import {
     addPokemonToUserPokedex,
-    fetchPokemonsByPage,
     fetchLoggedUserPokemons,
-    removePokemonFromUserPokedex,
-    buildRequestedTrade,
+    fetchPokemonsByPage,
     fetchPokemonsForGivenUser,
+    removePokemonFromUserPokedex,
 } from '../controllers/pokemon-controller';
 import { isUserAuthenticated } from '../util/auth-util';
 import { enforceValidInputs } from '../util/input-validation-util';
@@ -33,18 +32,6 @@ router.post(
     [check('userPokemonId').isNumeric()],
     enforceValidInputs,
     removePokemonFromUserPokedex,
-);
-
-router.post(
-    '/trade',
-    isUserAuthenticated,
-    [
-        check('requestedUserId').isNumeric(),
-        check('requestedPokemons').notEmpty().isArray(),
-        check('givenPokemons').notEmpty().isArray(),
-    ],
-    enforceValidInputs,
-    buildRequestedTrade,
 );
 
 export default router;

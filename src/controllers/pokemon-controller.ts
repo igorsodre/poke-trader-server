@@ -2,7 +2,6 @@ import { RequestHandler } from 'express';
 import { StatusCodes } from 'http-status-codes';
 import { Pokemon } from '../entity/Pokemon';
 import { User } from '../entity/User';
-import { Trade, TradeStaus } from './../entity/Trade';
 import { UserPokemons } from './../entity/UsersPokemons';
 import { ServerErrorResponse } from './../util/default-error-response';
 
@@ -98,42 +97,4 @@ export const removePokemonFromUserPokedex: RequestHandler = async (req, res, nex
     }
 
     res.json({ data: 'OK' });
-};
-
-interface BuildRequestedTradeBody {
-    requestedUserId: number;
-    requestedPokemons: number[];
-    givenPokemons: number[];
-}
-export const buildRequestedTrade: RequestHandler = async (req, res, next) => {
-    const { userId } = req.appData as IAccessTokenFormat;
-    const { requestedUserId, requestedPokemons, givenPokemons } = req.body as BuildRequestedTradeBody;
-
-    // validade if both users exist
-    let user: User;
-    let requestedUser: User;
-    try {
-        user = (await User.findOne(userId)) as User;
-        requestedUser = (await User.findOne(requestedUserId)) as User;
-    } catch (err) {
-        return next(new ServerErrorResponse('Failed to retrieve users', StatusCodes.INTERNAL_SERVER_ERROR, err));
-    }
-    if (!user || !requestedUser) {
-        return next(new ServerErrorResponse('Could not find users', StatusCodes.NOT_FOUND));
-    }
-
-    // TODO: validade if all pokemons requested and provided exist
-    try {
-        const trade = new Trade();
-        trade.requester = user;
-        trade.requested = requestedUser;
-        trade.pokemonsSentToRequestedUser = givenPokemons;
-        trade.requestedPokemons = requestedPokemons;
-        trade.status = TradeStaus.Active;
-        await trade.save();
-    } catch (err) {
-        return next(new ServerErrorResponse('Failed to create trade request', StatusCodes.NOT_FOUND));
-    }
-
-    res.json({ data: 'ok' });
 };
