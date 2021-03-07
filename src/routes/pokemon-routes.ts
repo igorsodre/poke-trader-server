@@ -1,5 +1,6 @@
+import { searchPokemonsByname } from './../controllers/pokemon-controller';
 import { Router } from 'express';
-import { check } from 'express-validator';
+import { check, query } from 'express-validator';
 import {
     addPokemonToUserPokedex,
     fetchLoggedUserPokemons,
@@ -11,6 +12,14 @@ import { isUserAuthenticated } from '../util/auth-util';
 import { enforceValidInputs } from '../util/input-validation-util';
 
 const router = Router();
+
+router.get(
+    '/search',
+    isUserAuthenticated,
+    [query('pokeName').not().isEmpty()],
+    enforceValidInputs,
+    searchPokemonsByname,
+);
 
 router.get('/my_pokemons', isUserAuthenticated, fetchLoggedUserPokemons);
 

@@ -1,5 +1,6 @@
 import { RequestHandler } from 'express';
 import { StatusCodes } from 'http-status-codes';
+import { Like } from 'typeorm';
 import { Pokemon } from '../entity/Pokemon';
 import { User } from '../entity/User';
 import { UserPokemons } from './../entity/UsersPokemons';
@@ -20,6 +21,18 @@ export const fetchPokemonsByPage: RequestHandler = async (req, res, next) => {
         );
     }
     res.json({ data: result, totalCount: count });
+};
+
+export const searchPokemonsByname: RequestHandler = async (req, res, next) => {
+    const { pokeName } = req.query;
+    let result: Pokemon[];
+
+    try {
+        result = await Pokemon.find({ where: { name: Like(`%${pokeName}%`) }, order: { name: 'ASC' }, take: 5 });
+    } catch (err) {
+        return next(new ServerErrorResponse('Failed search pokemon', StatusCodes.INTERNAL_SERVER_ERROR, err));
+    }
+    res.json({ data: result });
 };
 
 // TODO: think of a way to refactor this next 2 routes. The error handling makes it kind of hard
