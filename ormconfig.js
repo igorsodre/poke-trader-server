@@ -15,10 +15,7 @@ const getSubscribers = () =>
 
 module.exports = {
     type: 'postgres',
-    url:
-        getDatabaseUtl()[getEnvType()] || process.env.DATABASE_URL + process.env.NODE_ENV === 'production'
-            ? '?ssl=true'
-            : '',
+    url: getDatabaseUtl()[getEnvType()] || process.env.DATABASE_URL,
     dropSchema: getEnvType() === 'test',
     migrationsRun: getEnvType() === 'test',
     entities: getEntities(),
@@ -28,5 +25,11 @@ module.exports = {
         entitiesDir: 'src/entity',
         migrationsDir: 'src/migration',
         subscribersDir: 'src/subscriber',
+    },
+    ssl: true,
+    extra: {
+        ssl: {
+            rejectUnauthorized: false,
+        },
     },
 };
