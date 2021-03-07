@@ -3,7 +3,7 @@ import fs from 'fs';
 import path from 'path';
 import { createConnection } from 'typeorm';
 import { User } from '../entity/User';
-import { Pokemon } from './../entity/Pokemon';
+import { Pokemon } from '../entity/Pokemon';
 import { PokemonDetail } from './scriptToFetchAllPokemonsAndStats';
 
 export async function loadPokemonDetails(): Promise<void> {

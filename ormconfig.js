@@ -1,19 +1,26 @@
 /* eslint-disable no-undef */
-const envType = process.env.NODE_ENV;
-const databaseurl = {
+const getEnvType = () => process.env.NODE_ENV;
+const getDatabaseUtl = () => ({
     deveplopment: process.env.DATABASE_URL,
     test: process.env.TEST_DATABASE_URL,
     production: process.env.DATABASE_URL,
-};
+});
+
+const getEntities = () => (process.env.NODE_ENV === 'production' ? ['dist/entity/**/*.js'] : ['src/entity/**/*.ts']);
+const getMigrations = () =>
+    process.env.NODE_ENV === 'production' ? ['dist/migration/**/*.js'] : ['src/migration/**/*.ts'];
+
+const getSubscribers = () =>
+    process.env.NODE_ENV === 'production' ? ['dist/subscriber/**/*.js'] : ['src/subscriber/**/*.ts'];
 
 module.exports = {
     type: 'postgres',
-    url: databaseurl[envType] || process.env.DATABASE_URL,
-    dropSchema: envType === 'test',
-    migrationsRun: envType === 'test',
-    entities: ['src/entity/**/*.ts'],
-    migrations: ['src/migration/**/*.ts'],
-    subscribers: ['src/subscriber/**/*.ts'],
+    url: getDatabaseUtl()[getEnvType()] || process.env.DATABASE_URL,
+    dropSchema: getEnvType() === 'test',
+    migrationsRun: getEnvType() === 'test',
+    entities: getEntities(),
+    migrations: getMigrations(),
+    subscribers: getSubscribers(),
     cli: {
         entitiesDir: 'src/entity',
         migrationsDir: 'src/migration',
