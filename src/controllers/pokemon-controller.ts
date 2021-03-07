@@ -30,7 +30,7 @@ export const searchPokemonsByname: RequestHandler = async (req, res, next) => {
     try {
         result = await Pokemon.find({ where: { name: Like(`%${pokeName}%`) }, order: { name: 'ASC' }, take: 5 });
     } catch (err) {
-        return next(new ServerErrorResponse('Failed search pokemon', StatusCodes.INTERNAL_SERVER_ERROR, err));
+        return next(new ServerErrorResponse('Failed to search pokemon', StatusCodes.INTERNAL_SERVER_ERROR, err));
     }
     res.json({ data: result });
 };
@@ -45,7 +45,7 @@ export const fetchPokemonsForGivenUser: RequestHandler = async (req, res, next) 
     } catch (err) {
         return next(new ServerErrorResponse('Error retrieving pokemon/user', StatusCodes.INTERNAL_SERVER_ERROR, err));
     }
-    if (!user?.userPokemons) {
+    if (!user.userPokemons) {
         return next(new ServerErrorResponse('Could not find pokemon/user', StatusCodes.NOT_FOUND));
     }
     return res.json({ data: user.userPokemons });
@@ -59,7 +59,7 @@ export const fetchLoggedUserPokemons: RequestHandler = async (req, res, next) =>
     } catch (err) {
         return next(new ServerErrorResponse('Error retrieving pokemon/user', StatusCodes.INTERNAL_SERVER_ERROR, err));
     }
-    if (!user?.userPokemons) {
+    if (!user.userPokemons) {
         return next(new ServerErrorResponse('Could not find pokemon/user', StatusCodes.NOT_FOUND));
     }
     res.json({ data: user.userPokemons });
