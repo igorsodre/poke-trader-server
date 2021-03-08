@@ -2,7 +2,8 @@
 
 Place where you can add pokemons to your pokedex and trade pokemons with other users.
 
-Link for the poke-trader-web: https://poke-trader-web.web.app/pokemons
+Link for the poke-trader-web: https://poke-trader-web.web.app
+
 Link for the poke-trader-server: https://poke-trade-server.herokuapp.com
 
 ## Changes on the usage of the poke api
@@ -10,6 +11,13 @@ Link for the poke-trader-server: https://poke-trade-server.herokuapp.com
 I decided to store a subset of the poke api inside the database because I found the format of its output to be very cumbersome to work with.
 Since the poke trader project is consisted of a react app + an express server, all comunications is made through API calls to the backend, which I consider to fulfil the intended purposes in using the poke api.
 The script to fetch, format and store the data used can found in the file: `src/scripts/scriptToFetchAllPokemonsAndStats.ts`.
+
+## Stack
+
+- Typescript
+- Node + express + typeorm
+- postgress
+- react (frontend repo: https://github.com/igorsodre/poke-trader-web)
 
 ## Quick (recomended) postgress database setup
 
@@ -23,7 +31,7 @@ $ psql -U application_user -d postgres -h 127.0.0.1 -W
 CREATE database application_database
 ```
 
-## enviroment variables to set in you .env file (change the values)
+## Enviroment variables to set in you .env file (change the values)
 
 ```
 DATABASE_URL=postgres://example_user:example_password@localhost:5432/example_database
@@ -33,7 +41,7 @@ JWT_REFRESH_SECRET=super_long_string_of_random_caracters
 WEB_ORIGIN=http://localhost:3000
 ```
 
-## migrations
+## Migrations
 
 To generate migrations after modifications on entities:
 

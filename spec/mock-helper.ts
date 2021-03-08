@@ -1,3 +1,5 @@
+// eslint-disable-next-line @typescript-eslint/triple-slash-reference
+/// <reference path="../src/global.d.ts" />
 import { Pokemon } from './../src/entity/Pokemon';
 import { RequestHandler } from 'express';
 import { User } from '../src/entity/User';
@@ -17,13 +19,17 @@ export const getDefaultUser = (): User => {
     return user;
 };
 
-export const getDefaultPokemon = (): Pokemon => {
-    const pokemon: Pokemon = new Pokemon();
-    pokemon.name = 'pokemonDefult1';
-    pokemon.species = 'speciesDefult1';
-    pokemon.weight = 152;
-    pokemon.height = 50;
-    pokemon.baseExperience = 50;
-    pokemon.pokeApiId = 500;
-    return pokemon;
+export const getNPokemons = (numOfPokemons: number): Pokemon[] => {
+    const pokemonArray: Pokemon[] = [];
+    for (let i = 1; i <= numOfPokemons; i++) {
+        const pokemon: Pokemon = new Pokemon();
+        pokemon.name = 'pokemonDefult' + i.toString().padStart(2, '0');
+        pokemon.species = 'speciesDefult' + i.toString().padStart(2, '0');
+        pokemon.weight = 150 + i;
+        pokemon.height = 50 + i;
+        pokemon.baseExperience = 50 + i;
+        pokemon.pokeApiId = 500 + i;
+        pokemonArray.push(pokemon);
+    }
+    return pokemonArray;
 };
