@@ -6,6 +6,12 @@ Link for the poke-trader-web: https://poke-trader-web.web.app
 
 Link for the poke-trader-server: https://poke-trade-server.herokuapp.com
 
+## mechanics
+
+To perform a trade, the user needs to add pokemons to his pokedex first. he can only request pokemons that are in the requested user's pokedex.
+
+A trade is only completed after the requested user either accepts or rejects the trade. If accepted, the pokemons switch owners.
+
 ## Changes on the usage of the poke api
 
 I decided to store a subset of the poke api inside the database because I found the format of its output to be very cumbersome to work with.
