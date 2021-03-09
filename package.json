@@ -20,7 +20,7 @@
         "migration:generate": "typeorm migration:generate -n",
         "migration:run": "typeorm migration:run",
         "test:unit": "ENV_FILE=./config/.env.test jest",
-        "test": "NODE_ENV=test jest --verbose",
+        "test": "NODE_ENV=test jest --verbose --runInBand",
         "coverage": "NODE_ENV=test jest --coverage --verbose"
     },
     "dependencies": {

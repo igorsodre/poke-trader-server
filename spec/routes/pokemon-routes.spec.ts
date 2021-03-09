@@ -1,4 +1,4 @@
-import { getDefaultUser, getNPokemons } from './../mock-helper';
+import { getNUsers, getNPokemons } from './../mock-helper';
 import { mockIsUserAuthenticated } from '../mock-helper';
 
 import 'jest-extended';
@@ -19,8 +19,8 @@ const app = getApp();
 // TODO: Write tests for error/fail cases
 describe('=> Pokemon routes', () => {
     let con: Connection;
-    const user: User = getDefaultUser();
-    const pokemon: Pokemon = getNPokemons(1)[0];
+    const user: User = getNUsers()[0];
+    const pokemon: Pokemon = getNPokemons()[0];
 
     beforeAll(async () => {
         con = await createConnection();
@@ -31,6 +31,11 @@ describe('=> Pokemon routes', () => {
         // for some reason the 'clear' method is weird with the postgress implementation of typeorm
         await getConnection().getRepository(UserPokemons).delete({});
         await getConnection().getRepository(Pokemon).delete({});
+    });
+
+    afterAll(async () => {
+        await getConnection().getRepository(User).delete({});
+        await con.close();
     });
 
     describe('=> GET /api/pokemons/search', () => {
@@ -142,9 +147,5 @@ describe('=> Pokemon routes', () => {
             expect(result.status).toBe(200);
             expect(count).toBe(0);
         });
-    });
-
-    afterAll(() => {
-        con.close();
     });
 });
